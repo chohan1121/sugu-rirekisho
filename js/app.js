@@ -12,7 +12,10 @@ const fields = {
   birthDate: $("birth-date"),
   gender: $("gender"),
   addrKana: $("addr-kana"),
-  addr: $("addr"),
+  zip: $("zip"),
+  pref: $("pref"),
+  city: $("city"),
+  building: $("building"),
   tel: $("tel"),
   email: $("email"),
   currentJob: $("current-job"),
@@ -199,7 +202,15 @@ function render() {
   $("p-gender").textContent = fields.gender.value;
 
   $("p-addr-kana").textContent = fields.addrKana.value;
-  $("p-addr").textContent = fields.addr.value;
+  const zip = fields.zip.value.trim();
+  $("p-addr").textContent = [
+    zip ? `〒${formatZip(zip)}` : "",
+    fields.pref.value.trim(),
+    fields.city.value.trim(),
+    fields.building.value.trim(),
+  ]
+    .filter(Boolean)
+    .join(" ");
   $("p-tel").textContent = fields.tel.value;
   $("p-email").textContent = fields.email.value;
 
@@ -335,6 +346,76 @@ function resetAll() {
   update();
 }
 
+/* ---------- 郵便番号 → 住所自動入力 ---------- */
+
+// ハイフンを NNN-NNNN 形式に整える（表示用）
+function formatZip(raw) {
+  const d = String(raw).replace(/[^0-9]/g, "").slice(0, 7);
+  return d.length > 3 ? `${d.slice(0, 3)}-${d.slice(3)}` : d;
+}
+
+let lastLookedUpZip = "";
+
+async function lookupAddress() {
+  const digits = fields.zip.value.replace(/[^0-9]/g, "");
+  const hint = $("zip-hint");
+  if (digits.length !== 7) {
+    lastLookedUpZip = "";
+    return;
+  }
+  if (digits === lastLookedUpZip) return; // 二重取得を防ぐ
+  lastLookedUpZip = digits;
+
+  hint.textContent = "住所を検索中…";
+  try {
+    // zipcloud（無料・登録不要・CORS対応の郵便番号API）
+    const res = await fetch(`https://zipcloud.ibsnet.co.jp/api/search?zipcode=${digits}`);
+    const json = await res.json();
+    const r = json.results && json.results[0];
+    if (!r) {
+      hint.textContent = "該当する住所が見つかりませんでした";
+      return;
+    }
+    fields.pref.value = r.address1; // 都道府県
+    fields.city.value = r.address2 + r.address3; // 市区町村 + 町域
+    hint.textContent = "住所を自動入力しました。番地・建物名を追記してください";
+    fields.city.focus();
+    update();
+  } catch {
+    hint.textContent = "住所の自動取得に失敗しました（手入力してください）";
+  }
+}
+
+/* ---------- 電話番号の自動整形 ---------- */
+
+// 日本の電話番号に自動でハイフンを入れる。
+// 携帯・IP・フリーダイヤル・主要な市外局番の桁数に対応し、
+// 判定できない場合は 3-4-4 で無難に区切る。
+function formatPhone(raw) {
+  const d = String(raw).replace(/[^0-9]/g, "");
+  if (!d.startsWith("0") || d.length < 6) return raw.trim();
+
+  // 携帯・PHS・IP電話・050 → 3-4-4（11桁）
+  if (/^(070|080|090|050)/.test(d) && d.length === 11) {
+    return `${d.slice(0, 3)}-${d.slice(3, 7)}-${d.slice(7)}`;
+  }
+  // フリーダイヤル・ナビダイヤル系 0120 / 0570 / 0800 → 4-3-3
+  if (/^(0120|0800)/.test(d) && d.length === 10) {
+    return `${d.slice(0, 4)}-${d.slice(4, 7)}-${d.slice(7)}`;
+  }
+  if (/^0570/.test(d) && d.length === 10) {
+    return `${d.slice(0, 4)}-${d.slice(4, 7)}-${d.slice(7)}`;
+  }
+  // 固定電話（10桁）: 市外局番の桁数で区切る
+  if (d.length === 10) {
+    // 2桁市外局番（東京03・大阪06）→ 2-4-4
+    if (/^0(3|6)/.test(d)) return `${d.slice(0, 2)}-${d.slice(2, 6)}-${d.slice(6)}`;
+    // それ以外は 3-3-4 が最も一般的
+    return `${d.slice(0, 3)}-${d.slice(3, 6)}-${d.slice(6)}`;
+  }
+  return raw.trim();
+}
+
 /* ---------- 画面幅に合わせてA4シートを縮小表示 ---------- */
 
 const SHEET_WIDTH_PX = 794; // 210mm @ 96dpi
@@ -377,6 +458,19 @@ function init() {
   $("btn-print").addEventListener("click", () => window.print());
   $("btn-clear").addEventListener("click", () => {
     if (confirm("すべての入力内容と写真をクリアして新規作成しますか？")) resetAll();
+  });
+
+  // 郵便番号: 7桁入力またはフォーカスを外したタイミングで住所を自動取得
+  fields.zip.addEventListener("input", lookupAddress);
+  fields.zip.addEventListener("blur", () => {
+    fields.zip.value = formatZip(fields.zip.value);
+    update();
+  });
+
+  // 電話番号: 入力を終えたタイミング（フォーカスアウト）でハイフンを自動挿入
+  fields.tel.addEventListener("blur", () => {
+    fields.tel.value = formatPhone(fields.tel.value);
+    update();
   });
 
   window.addEventListener("resize", fitSheet);

@@ -87,18 +87,34 @@
     <details class="card" open>
       <summary>連絡先</summary>
       <div class="card-body">
+        <div class="field-row">
+          <label class="field w-third">
+            <span>郵便番号</span>
+            <input type="text" id="zip" placeholder="1000001" inputmode="numeric" maxlength="8" autocomplete="postal-code">
+            <small class="field-hint" id="zip-hint">7桁入力で住所を自動入力</small>
+          </label>
+          <label class="field w-third">
+            <span>都道府県</span>
+            <input type="text" id="pref" placeholder="東京都" autocomplete="address-level1">
+          </label>
+          <label class="field">
+            <span>市区町村・番地</span>
+            <input type="text" id="city" placeholder="千代田区千代田1-1" autocomplete="address-level2">
+          </label>
+        </div>
+        <label class="field">
+          <span>建物名・部屋番号（任意）</span>
+          <input type="text" id="building" placeholder="○○マンション101" autocomplete="address-line2">
+        </label>
         <label class="field">
           <span>ふりがな（住所）</span>
           <input type="text" id="addr-kana" placeholder="とうきょうと ちよだく…">
         </label>
-        <label class="field">
-          <span>現住所</span>
-          <textarea id="addr" rows="2" placeholder="〒100-0001&#10;東京都千代田区○○1-2-3 ○○マンション101"></textarea>
-        </label>
         <div class="field-row">
           <label class="field">
             <span>電話番号</span>
-            <input type="tel" id="tel" placeholder="090-0000-0000" autocomplete="tel">
+            <input type="tel" id="tel" placeholder="09012345678" inputmode="tel" autocomplete="tel">
+            <small class="field-hint">数字のみでOK・自動でハイフンが入ります</small>
           </label>
           <label class="field">
             <span>メールアドレス</span>
