@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>スグ履歴書 | 無料・登録不要の履歴書作成ツール（PDF保存・個人情報を送信しない）</title>
+<meta name="description" content="登録不要・完全無料の履歴書作成ツール。和暦/西暦の自動変換、入学・卒業年の自動計算、証明写真の挿入に対応し、ブラウザからそのままA4のPDFを保存。氏名や住所などの個人情報は端末内にのみ保存され、サーバーには一切送信されません。">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%23166534'/%3E%3Ctext x='50' y='68' font-size='48' text-anchor='middle' fill='white' font-family='sans-serif'%3E履%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<header class="app-header no-print">
+  <div class="brand">
+    <span class="brand-mark">履</span>
+    <div>
+      <h1>スグ履歴書</h1>
+      <p>登録不要・個人情報を送信しない履歴書メーカー</p>
+    </div>
+  </div>
+  <div class="header-actions">
+    <button id="btn-clear" class="btn btn-ghost" type="button">新規作成</button>
+    <button id="btn-print" class="btn btn-primary" type="button">印刷 / PDF保存</button>
+  </div>
+</header>
+
+<main class="layout">
+
+  <!-- ===== 入力フォーム ===== -->
+  <section class="form-pane no-print" aria-label="履歴書入力フォーム">
+
+    <details class="card" open>
+      <summary>表示設定</summary>
+      <div class="card-body">
+        <div class="field-row">
+          <label class="field">
+            <span>年号の表示</span>
+            <select id="era">
+              <option value="wareki">和暦（令和・平成…）</option>
+              <option value="seireki">西暦（2026年…）</option>
+            </select>
+          </label>
+          <label class="field">
+            <span>記入日</span>
+            <input type="date" id="doc-date">
+          </label>
+        </div>
+      </div>
+    </details>
+
+    <details class="card" open>
+      <summary>基本情報 <small>— 自動保存されます</small></summary>
+      <div class="card-body">
+        <label class="field">
+          <span>ふりがな</span>
+          <input type="text" id="name-kana" placeholder="やまだ たろう">
+        </label>
+        <label class="field">
+          <span>氏名</span>
+          <input type="text" id="name" placeholder="山田 太郎" autocomplete="name">
+        </label>
+        <div class="field-row">
+          <label class="field grow">
+            <span>生年月日</span>
+            <input type="date" id="birth-date">
+          </label>
+          <label class="field">
+            <span>性別（任意）</span>
+            <select id="gender">
+              <option value="">記載しない</option>
+              <option value="男">男</option>
+              <option value="女">女</option>
+            </select>
+          </label>
+        </div>
+        <div class="field">
+          <span>証明写真（縦4:横3で自動トリミング）</span>
+          <div class="photo-controls">
+            <input type="file" id="photo-input" accept="image/*">
+            <button id="btn-photo-remove" class="btn btn-ghost btn-small" type="button" hidden>写真を削除</button>
+          </div>
+          <p class="hint">画像は端末内で処理され、サーバーにはアップロードされません。</p>
+        </div>
+      </div>
+    </details>
+
+    <details class="card" open>
+      <summary>連絡先</summary>
+      <div class="card-body">
+        <label class="field">
+          <span>ふりがな（住所）</span>
+          <input type="text" id="addr-kana" placeholder="とうきょうと ちよだく…">
+        </label>
+        <label class="field">
+          <span>現住所</span>
+          <textarea id="addr" rows="2" placeholder="〒100-0001&#10;東京都千代田区○○1-2-3 ○○マンション101"></textarea>
+        </label>
+        <div class="field-row">
+          <label class="field">
+            <span>電話番号</span>
+            <input type="tel" id="tel" placeholder="090-0000-0000" autocomplete="tel">
+          </label>
+          <label class="field">
+            <span>メールアドレス</span>
+            <input type="email" id="email" placeholder="mail@example.com" autocomplete="email">
+          </label>
+        </div>
+      </div>
+    </details>
+
+    <details class="card" open>
+      <summary>学歴</summary>
+      <div class="card-body">
+        <div id="edu-rows"></div>
+        <div class="btn-row">
+          <button id="btn-add-edu" class="btn btn-ghost btn-small" type="button">＋ 行を追加</button>
+          <button id="btn-auto-edu" class="btn btn-ghost btn-small" type="button">生年月日から入学・卒業年を自動入力</button>
+        </div>
+      </div>
+    </details>
+
+    <details class="card" open>
+      <summary>職歴</summary>
+      <div class="card-body">
+        <div id="work-rows"></div>
+        <button id="btn-add-work" class="btn btn-ghost btn-small" type="button">＋ 行を追加</button>
+        <label class="check">
+          <input type="checkbox" id="current-job" checked>
+          <span>末尾に「現在に至る」を入れる（在職中の場合）</span>
+        </label>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary>免許・資格</summary>
+      <div class="card-body">
+        <div id="lic-rows"></div>
+        <button id="btn-add-lic" class="btn btn-ghost btn-small" type="button">＋ 行を追加</button>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary>志望動機・自己PRなど</summary>
+      <div class="card-body">
+        <label class="field">
+          <span>志望の動機、特技、好きな学科、アピールポイントなど</span>
+          <textarea id="motive" rows="5" placeholder="貴社の○○事業に魅力を感じ…"></textarea>
+        </label>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary>本人希望・その他</summary>
+      <div class="card-body">
+        <label class="field">
+          <span>本人希望記入欄</span>
+          <textarea id="wish" rows="3" placeholder="貴社の規定に従います。"></textarea>
+        </label>
+        <div class="field-row">
+          <label class="field">
+            <span>通勤時間</span>
+            <input type="text" id="commute" placeholder="約1時間10分">
+          </label>
+          <label class="field">
+            <span>扶養家族数（配偶者を除く）</span>
+            <input type="number" id="dependents" min="0" step="1" placeholder="0">
+          </label>
+        </div>
+        <div class="field-row">
+          <label class="field">
+            <span>配偶者</span>
+            <select id="spouse">
+              <option value=""></option>
+              <option value="無">無</option>
+              <option value="有">有</option>
+            </select>
+          </label>
+          <label class="field">
+            <span>配偶者の扶養義務</span>
+            <select id="spouse-support">
+              <option value=""></option>
+              <option value="無">無</option>
+              <option value="有">有</option>
+            </select>
+          </label>
+        </div>
+      </div>
+    </details>
+
+    <p class="privacy-note">🔒 入力内容と写真はお使いの端末（ブラウザ）内にのみ保存されます。サーバーには一切送信されません。</p>
+  </section>
+
+  <!-- ===== プレビュー（印刷対象・A4 2枚） ===== -->
+  <section class="preview-pane" aria-label="履歴書プレビュー">
+    <div id="sheets">
+
+      <div class="sheet" id="sheet1">
+        <div class="sheet-header">
+          <h2 class="sheet-title">履　歴　書</h2>
+          <p class="sheet-date"><span id="p-doc-date"></span>現在</p>
+        </div>
+
+        <div class="profile-top">
+          <table class="profile-table pt-main">
+            <tr class="kana-row">
+              <th>ふりがな</th>
+              <td id="p-name-kana"></td>
+            </tr>
+            <tr class="name-row">
+              <th>氏　名</th>
+              <td id="p-name"></td>
+            </tr>
+            <tr class="birth-row">
+              <th>生年月日</th>
+              <td id="p-birth"></td>
+              <th class="th-gender">性別</th>
+              <td class="td-gender" id="p-gender"></td>
+            </tr>
+          </table>
+          <div class="photo-box" id="p-photo"><span class="photo-placeholder">写　真</span></div>
+        </div>
+
+        <table class="profile-table pt-sub">
+          <tr class="kana-row">
+            <th>ふりがな</th>
+            <td colspan="3" id="p-addr-kana"></td>
+          </tr>
+          <tr class="addr-row">
+            <th>現住所</th>
+            <td colspan="3" id="p-addr"></td>
+          </tr>
+          <tr>
+            <th>電話</th>
+            <td id="p-tel"></td>
+            <th>E-mail</th>
+            <td id="p-email"></td>
+          </tr>
+        </table>
+
+        <table class="history-table">
+          <thead>
+            <tr><th class="col-year">年</th><th class="col-month">月</th><th>学歴・職歴（項目別にまとめて書く）</th></tr>
+          </thead>
+          <tbody id="p-history"></tbody>
+        </table>
+      </div>
+
+      <div class="sheet" id="sheet2">
+        <table class="history-table lic-table">
+          <thead>
+            <tr><th class="col-year">年</th><th class="col-month">月</th><th>免許・資格</th></tr>
+          </thead>
+          <tbody id="p-lic"></tbody>
+        </table>
+
+        <div class="text-box motive-box">
+          <h3>志望の動機、特技、好きな学科、アピールポイントなど</h3>
+          <p id="p-motive"></p>
+        </div>
+
+        <table class="misc-table">
+          <tr>
+            <th>通勤時間</th>
+            <th>扶養家族数（配偶者を除く）</th>
+            <th>配偶者</th>
+            <th>配偶者の扶養義務</th>
+          </tr>
+          <tr>
+            <td id="p-commute"></td>
+            <td id="p-dependents"></td>
+            <td id="p-spouse"></td>
+            <td id="p-spouse-support"></td>
+          </tr>
+        </table>
+
+        <div class="text-box wish-box">
+          <h3>本人希望記入欄（給料・職種・勤務時間・勤務地・その他についての希望があれば記入）</h3>
+          <p id="p-wish"></p>
+        </div>
+      </div>
+
+    </div>
+  </section>
+</main>
+
+<footer class="app-footer no-print">
+  <p>スグ履歴書 — 無料・登録不要の履歴書作成ツール。「印刷 / PDF保存」から、印刷ダイアログで「PDFに保存」を選ぶとA4・2ページのPDFがダウンロードできます。氏名・住所・学歴などの個人情報はサーバーに送信されず、お使いの端末内にのみ保存されます。</p>
+  <p class="disclaimer">本ツールは書類作成の補助を目的としたものです。応募先の指定様式がある場合はそちらに従ってください。</p>
+</footer>
+
+<template id="row-template">
+  <div class="h-row">
+    <input type="number" class="row-year" placeholder="年" min="1900" max="2100" title="年（西暦で入力）">
+    <input type="number" class="row-month" placeholder="月" min="1" max="12" title="月">
+    <input type="text" class="row-text" placeholder="内容">
+    <button type="button" class="row-remove" title="この行を削除">×</button>
+  </div>
+</template>
+
+<script src="js/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,18 @@
+# スグ履歴書 — 静的サイト（ビルド不要）
+# この設定ファイルがあれば、Netlify管理画面の入力に関係なく正しく公開されます。
+
+[build]
+  # ビルド工程なし。リポジトリのルートをそのまま公開する。
+  publish = "."
+  command = ""
+
+# 静的アセットのキャッシュを効かせる（任意）
+[[headers]]
+  for = "/css/*"
+  [headers.values]
+    Cache-Control = "public, max-age=86400"
+
+[[headers]]
+  for = "/js/*"
+  [headers.values]
+    Cache-Control = "public, max-age=86400"

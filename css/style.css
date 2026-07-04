@@ -1,0 +1,362 @@
+:root {
+  --green: #166534;
+  --green-dark: #14532d;
+  --ink: #1f2937;
+  --muted: #6b7280;
+  --line: #d1d5db;
+  --bg: #eef3ef;
+  --card: #ffffff;
+  --accent-bg: #f0fdf4;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: "Hiragino Kaku Gothic ProN", "Hiragino Sans", "Yu Gothic UI", "Yu Gothic", Meiryo, system-ui, sans-serif;
+  color: var(--ink);
+  background: var(--bg);
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+/* ===== ヘッダー ===== */
+.app-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 12px 24px;
+  background: var(--card);
+  border-bottom: 1px solid var(--line);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.brand { display: flex; align-items: center; gap: 12px; }
+
+.brand-mark {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background: var(--green);
+  color: #fff;
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.brand h1 { margin: 0; font-size: 18px; }
+.brand p { margin: 0; font-size: 11px; color: var(--muted); }
+
+.header-actions { display: flex; gap: 8px; }
+
+.btn {
+  font: inherit;
+  padding: 9px 18px;
+  border-radius: 8px;
+  border: 1px solid var(--line);
+  background: var(--card);
+  color: var(--ink);
+  cursor: pointer;
+}
+.btn:hover { background: var(--accent-bg); }
+.btn-primary {
+  background: var(--green);
+  border-color: var(--green);
+  color: #fff;
+  font-weight: 600;
+}
+.btn-primary:hover { background: var(--green-dark); }
+.btn-ghost { background: transparent; }
+.btn-small { padding: 6px 12px; font-size: 13px; }
+.btn-row { display: flex; gap: 8px; flex-wrap: wrap; }
+
+/* ===== レイアウト ===== */
+.layout {
+  display: grid;
+  grid-template-columns: minmax(320px, 460px) 1fr;
+  gap: 24px;
+  padding: 24px;
+  max-width: 1400px;
+  margin: 0 auto;
+  align-items: start;
+}
+
+@media (max-width: 960px) {
+  .layout { grid-template-columns: 1fr; }
+}
+
+/* ===== フォーム ===== */
+.card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  margin-bottom: 14px;
+  overflow: hidden;
+}
+
+.card > summary {
+  padding: 12px 16px;
+  font-weight: 700;
+  cursor: pointer;
+  user-select: none;
+  background: var(--accent-bg);
+}
+.card > summary small { font-weight: 400; color: var(--muted); }
+
+.card-body { padding: 16px; }
+
+.field { display: block; margin-bottom: 12px; }
+.field > span { display: block; font-size: 12px; color: var(--muted); margin-bottom: 4px; }
+
+.field input,
+.field select,
+.field textarea {
+  width: 100%;
+  font: inherit;
+  padding: 8px 10px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: #fff;
+}
+.field textarea { resize: vertical; }
+
+.field input:focus,
+.field select:focus,
+.field textarea:focus,
+.h-row input:focus {
+  outline: 2px solid var(--green);
+  outline-offset: -1px;
+}
+
+.field-row { display: flex; gap: 10px; }
+.field-row .field { flex: 1; min-width: 0; }
+.field-row .grow { flex: 2; }
+
+.check {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin-top: 12px;
+  font-size: 13px;
+  cursor: pointer;
+}
+.check input { margin-top: 3px; }
+
+.hint { font-size: 11px; color: var(--muted); margin: 6px 0 0; }
+
+.photo-controls { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.photo-controls input[type="file"] { font-size: 12px; }
+
+/* 年月＋内容の行 */
+.h-row {
+  display: grid;
+  grid-template-columns: 74px 56px 1fr 32px;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+.h-row input {
+  font: inherit;
+  padding: 8px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  min-width: 0;
+}
+.h-row .row-year,
+.h-row .row-month { text-align: center; }
+
+.row-remove {
+  border: none;
+  background: transparent;
+  color: var(--muted);
+  font-size: 16px;
+  cursor: pointer;
+  border-radius: 6px;
+}
+.row-remove:hover { background: #fee2e2; color: #b91c1c; }
+
+.privacy-note { font-size: 12px; color: var(--muted); padding: 0 4px; }
+
+/* ===== プレビュー（履歴書本体） ===== */
+.preview-pane { overflow-x: auto; }
+
+#sheets { width: 210mm; margin: 0 auto; }
+
+.sheet {
+  background: #fff;
+  width: 210mm;
+  min-height: 296mm;
+  margin: 0 auto 20px;
+  padding: 14mm 14mm;
+  box-shadow: 0 2px 16px rgba(15, 23, 42, .14);
+  color: #111827;
+  font-family: "Yu Mincho", "Hiragino Mincho ProN", "MS PMincho", serif;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.sheet-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  margin-bottom: 6mm;
+}
+
+.sheet-title {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 700;
+  letter-spacing: .3em;
+}
+
+.sheet-date { margin: 0; font-size: 12px; }
+
+/* 基本情報（写真つき） */
+.profile-top { display: flex; align-items: stretch; gap: 6mm; }
+.profile-top .pt-main { flex: 1; }
+
+.profile-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.profile-table th,
+.profile-table td {
+  border: 1px solid #111827;
+  padding: 2mm 3mm;
+  vertical-align: middle;
+  text-align: left;
+  font-weight: 400;
+}
+.profile-table th {
+  width: 22mm;
+  font-size: 10px;
+  background: #fafaf5;
+  white-space: nowrap;
+}
+.kana-row th, .kana-row td { font-size: 10px; padding: 1mm 3mm; }
+.name-row td { font-size: 20px; height: 16mm; }
+.birth-row td { height: 10mm; }
+.birth-row .th-gender { width: 12mm; text-align: center; }
+.birth-row .td-gender { width: 16mm; text-align: center; }
+
+.pt-sub { margin-top: -1px; }
+.pt-sub .addr-row td { height: 14mm; white-space: pre-wrap; }
+.pt-sub td { width: auto; }
+
+.photo-box {
+  width: 30mm;
+  height: 40mm;
+  border: 1px dashed #9ca3af;
+  display: grid;
+  place-items: center;
+  align-self: flex-start;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+.photo-box img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.photo-placeholder { color: #9ca3af; font-size: 11px; letter-spacing: .2em; }
+.photo-box.has-photo { border-style: solid; border-color: #111827; }
+.photo-box.has-photo .photo-placeholder { display: none; }
+
+/* 学歴・職歴／免許・資格テーブル */
+.history-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 6mm;
+}
+.history-table th,
+.history-table td {
+  border: 1px solid #111827;
+  padding: 1.6mm 3mm;
+  height: 8mm;
+}
+.history-table thead th {
+  text-align: center;
+  font-size: 11px;
+  font-weight: 700;
+  background: #fafaf5;
+  height: 7mm;
+}
+.history-table .col-year { width: 22mm; }
+.history-table .col-month { width: 12mm; }
+.history-table td.cell-year,
+.history-table td.cell-month { text-align: center; }
+.history-table td.cell-head { text-align: center; font-weight: 700; letter-spacing: 1em; text-indent: 1em; }
+.history-table td.cell-end { text-align: right; padding-right: 8mm; }
+
+/* 2ページ目 */
+.lic-table { margin-top: 0; }
+
+.text-box {
+  border: 1px solid #111827;
+  margin-top: 6mm;
+}
+.text-box h3 {
+  margin: 0;
+  font-size: 10px;
+  font-weight: 400;
+  padding: 1.5mm 3mm;
+  border-bottom: 1px solid #111827;
+  background: #fafaf5;
+}
+.text-box p {
+  margin: 0;
+  padding: 2.5mm 3mm;
+  white-space: pre-wrap;
+}
+.motive-box p { min-height: 55mm; }
+.wish-box p { min-height: 35mm; }
+
+.misc-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 6mm;
+}
+.misc-table th,
+.misc-table td {
+  border: 1px solid #111827;
+  padding: 1.5mm 3mm;
+  text-align: center;
+}
+.misc-table th { font-size: 10px; font-weight: 400; background: #fafaf5; }
+.misc-table td { height: 9mm; }
+
+/* ===== フッター ===== */
+.app-footer {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 8px 24px 32px;
+  color: var(--muted);
+  font-size: 12px;
+}
+.app-footer .disclaimer { font-size: 11px; }
+
+/* ===== 印刷 ===== */
+@page { size: A4; margin: 0; }
+
+@media print {
+  body { background: #fff; }
+  .no-print { display: none !important; }
+  .layout { display: block; padding: 0; max-width: none; }
+  .preview-pane { overflow: visible; }
+  #sheets { width: auto; zoom: 1 !important; /* 画面用の縮小表示を印刷では無効化 */ }
+  .sheet {
+    width: auto;
+    min-height: 0;
+    margin: 0;
+    box-shadow: none;
+    padding: 12mm 14mm;
+  }
+  #sheet1 { break-after: page; page-break-after: always; }
+  .profile-table th,
+  .history-table thead th,
+  .text-box h3,
+  .misc-table th {
+    background: #fafaf5 !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+}
